@@ -2,11 +2,15 @@ colorMode(RGB, 255, 255, 255, 100);
 
 var roundNr;
 
+
 /*<--- SETUP --->*/
 function setup() {
 
     createCanvas(467, 487);
-    background(248);
+    //background(248);
+    game = new Game();
+    game.fillArray();
+    console.log(game.cells[0]);
     initialState();
 
     roundNr = 0;
@@ -15,11 +19,12 @@ function setup() {
 /*<--- DRAW --->*/
 function draw() {
 
-    whosTurn();
-
-    if (roundNr == 10) {
-        wonState();
+    console.log(game.pause);
+    if(!game.pause){
+        whosTurn();
     }
+    game.testWin();
+
 
     if (roundNr == 11) {
 
@@ -28,7 +33,65 @@ function draw() {
         roundNr = 0;
     }
 
+
 }
+
+function Game() {
+
+        this.cells = [];
+        this.pause = false;
+
+
+
+        this.testWin = function() {
+            var winner = -1;
+
+            for(var i = 0; i < 3; i++){
+                if(game.cells[0 + i] != 0   //Horizontal Check
+                    && game.cells[0 + i] == game.cells[3 + i]
+                    && game.cells[3 + i] == game.cells[6 + i]){
+
+                        winner = game.cells[0 + i];
+
+                }
+                else if(game.cells[i * 3] != 0   //Vertical Check
+                        && game.cells[i * 3] == game.cells[(i * 3)+1]
+                        && game.cells[(i * 3)+1] == game.cells[(i * 3)+2]){
+
+                            winner = game.cells[i * 3];
+                }
+                else if(game.cells[0] != 0
+                        && game.cells[0] == game.cells[4]
+                        && game.cells[4] == game.cells[8]) {
+
+                            winner = game.cells[4];
+                }
+                else if(game.cells[2] != 0
+                        && game.cells[2] == game.cells[4]
+                        && game.cells[4] == game.cells[6]) {
+
+                            winner = game.cells[4];
+                }
+
+            }
+            if(winner != -1){
+                wonState(winner);
+            }
+        }
+        this.testEnd = function() {
+            var isThisTheEnd = false;
+
+        }
+        this.restart = function() {
+
+        }
+        this.fillArray = function() {
+            for(var i=0; i<9; i++){
+                this.cells[i] = 0;
+            }
+        }
+}
+
 
 function initialState() {
 
@@ -59,16 +122,15 @@ function initialState() {
     rect(81, 292, 306, 9);
 }
 
-function wonState() { //add later: parameter for circle and cross
+function wonState(winner) { //add later: parameter for circle and cross
 
-    var tempVar = true;
-
+    game.pause = true;
     //Grey background
     noStroke();
     fill(236, 236, 238);
     rect(0, 68, 467, 354);
 
-     if (tempVar) {
+     if (winner == 2) {
         //redundant
         noFill();
         strokeWeight(15);
@@ -77,7 +139,7 @@ function wonState() { //add later: parameter for circle and cross
         ellipse(234, 225, 134, 134);
 
     }
-    else {
+    else if(winner == 1) {
 
         noStroke();
         fill(58, 59, 99);
@@ -96,6 +158,7 @@ function wonState() { //add later: parameter for circle and cross
 
 function mousePressed() {
 
+
     if (roundNr % 2 == 0) {
         drawCrossX();
     }
@@ -103,36 +166,63 @@ function mousePressed() {
         drawCircle();
     }
 
-    roundNr++;
-    console.log(roundNr);
+    console.log("Round Nr = " + roundNr);
 }
 
 function whosTurn() {
+    //Hide Turn
     noStroke();
     fill(248);
-    rect(171,434,41,41);
+    rect(171,434,150,41);
 
-    if(roundNr%2 == 0) {
+    if(game.play) {
+        if(roundNr%2 == 0) {
+            noStroke();
+            fill(58, 59, 99);
+            crossX(192, 454, 35, 4);
+        }
+        else{
+            noFill();
+            stroke(115, 220, 230);
+            strokeWeight(4);
+            ellipse(192, 454, 35, 35);
+        }
+
+        fill(184, 184, 190);
         noStroke();
-        fill(58, 59, 99);
-        crossX(192, 454, 35, 4);
+        textSize(15);
+        textAlign(LEFT,CENTER);
+        text("s TURN", 215, 455);
     }
-    else{
-        noFill();
-        stroke(115, 220, 230);
-        strokeWeight(4);
-        ellipse(192, 454, 35, 35);
+}
+
+function translateCoordToCell(CoordX, CoordY) {
+    if(CoordX == 129){
+        x = 0;
+    }
+    else if(CoordX == 234){
+        x = 1;
+    }
+    else if(CoordX == 339){
+        x = 2;
     }
 
-    fill(184, 184, 190);
-    noStroke();
-    textSize(15);
-    textAlign(LEFT,CENTER);
-    text("s TURN", 215, 455);
-
+    if(CoordY == 139){
+        y = 0;
+    }
+    else if(CoordY == 244){
+        y = 1;
+    }
+    else if(CoordY == 349){
+        y = 2;
+    }
+    console.log(x+(y*3));
+    return x+(y*3);
 }
 
 function drawCircle() {
+    var index = -1;
+
     noFill();
     strokeWeight(9);
     /*<--- Circle --->*/
@@ -140,7 +230,19 @@ function drawCircle() {
 
     var x = drawOnGridX();
     var y = drawOnGridY();
-    ellipse(x, y, 63, 63);
+
+    console.log("drawCircle(): x=" + x + " y = " + y);
+
+    if(x != -1 && y != -1){
+        index = translateCoordToCell(x,y);
+        if(game.cells[index] == 0){
+            game.cells[index] = 2;
+            roundNr++;
+            ellipse(x, y, 63, 63);
+        }
+
+    }
+
 }
 
 function drawCrossX() {
@@ -149,7 +251,15 @@ function drawCrossX() {
 
     var x = drawOnGridX();
     var y = drawOnGridY();
-    crossX(x, y, 73, 9);
+
+    if(x != -1 && y != -1) {
+        index = translateCoordToCell(x,y);
+        if(game.cells[index] == 0){
+            game.cells[index] = 1;
+            roundNr++;
+            crossX(x, y, 73, 9);
+        }
+    }
 }
 
 /*<--- Custom Shape Function Cross --->*/
@@ -176,9 +286,8 @@ function drawOnGridX() {
         x = 339;
     }
 
-    if(x != -1) {
-        return x;
-    }
+    return x;
+
 }
 
 function drawOnGridY() {
@@ -195,8 +304,6 @@ function drawOnGridY() {
         y = 349;
     }
 
-    if(y != -1) {
-        return y;
-    }
+    return y;
 
 }
