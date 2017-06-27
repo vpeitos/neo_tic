@@ -1,4 +1,4 @@
-colorMode(RGB, 255, 255, 255, 100);
+colorMode(RGB, 255, 255, 255, 1);
 
 var roundNr;
 
