@@ -2,33 +2,6 @@ colorMode(RGB, 255, 255, 255, 1);
 
 var roundNr;
 
-
-
-/*<--- SETUP --->*/
-function setup() {
-
-    createCanvas(467, 487); //width 467px, height 487px
-
-    game = new Game();  //Create new Game Object
-    game.fillArray();   //initializes the board Cells with 0's
-
-    initialState();     //draws a blank Board
-
-    roundNr = 0;        //counter keeps the number of rounds mostly to decide whos turn it is
-}
-
-/*<--- DRAW --->*/
-function draw() {
-
-    if(game.play){
-        whosTurn();     //Shows whos turn it is
-    }
-
-    game.testWin();     //has anybody won already?
-    game.testEnd();     //is the Board filled?
-
-}
-
 function Game() {       //the Game Object
 
         this.cells = [];    //array that keeps track of which Cell is filled with Xs or Os
@@ -101,6 +74,30 @@ function Game() {       //the Game Object
         }
 }
 
+/*<--- SETUP --->*/
+function setup() {
+
+    createCanvas(467, 487); //width 467px, height 487px
+
+    game = new Game();  //Create new Game Object
+    game.fillArray();   //initializes the board Cells with 0's
+
+    initialState();     //draws a blank Board
+
+    roundNr = 0;        //counter keeps the number of rounds mostly to decide whos turn it is
+}
+
+/*<--- DRAW --->*/
+function draw() {
+
+    if(game.play){
+        whosTurn();     //Shows whos turn it is
+    }
+
+    game.testWin();     //has anybody won already?
+    game.testEnd();     //is the Board filled?
+
+}
 
 function initialState() {           //Draw an empty Board
 
@@ -117,18 +114,14 @@ function initialState() {           //Draw an empty Board
     fill(138, 133, 189);
     rect(0, 68, 467, 354);
 
-    /*<--- Vertical Lines --->*/
-    fill(0, 0, 0, 30);
-    rect(177, 91, 9, 306);
+    fill(0, 0, 0, 30); //Color: Black opacity 30
 
-    fill(0, 0, 0, 30);
+    /*<--- Vertical Lines --->*/
+    rect(177, 91, 9, 306);
     rect(282, 91, 9, 306);
 
     /*<--- Horizontal Lines --->*/
-    fill(0, 0, 0, 30);
     rect(81, 187, 306, 9);
-
-    fill(0, 0, 0, 30);
     rect(81, 292, 306, 9);
 }
 
@@ -136,23 +129,13 @@ function wonState(winner) {
 
     //Grey background
     noStroke();
-    fill(236, 236, 238);
+    fill(236, 236, 238); // Color: Light Grey
     rect(0, 68, 467, 354);
 
      if (winner == 2) { // 2 for Winner is the player with O's
-        //redundant
-        noFill();
-        strokeWeight(15);
-        /*<--- Circle --->*/
-        stroke(115, 220, 230);
-        ellipse(234, 225, 134, 134);    //Big Circle
-
+        circleO(234, 225, 134, 15);    //Big Circle
     }
     else if(winner == 1) { // 1 for Winner is the player with X's
-
-        noStroke();
-        fill(58, 59, 99);
-
         crossX(234, 225, 134, 15);      //Big Cross
     }
 
@@ -190,15 +173,13 @@ function whosTurn() {
 
     if(game.play) {             //While we are playing Show whos turn it is
         if(roundNr%2 == 0) {
-            noStroke();
-            fill(58, 59, 99);
+
             crossX(192, 454, 35, 4);
         }
         else{
-            noFill();
-            stroke(115, 220, 230);
-            strokeWeight(4);
-            ellipse(192, 454, 35, 35);
+
+            circleO(192, 454, 35, 4);
+
         }
 
         //text = "s TURN"
@@ -209,6 +190,9 @@ function whosTurn() {
         text("s TURN", 215, 455);
     }
 }
+
+
+
 
 function showNewGameButton() {  //When the game is paused show the New Game Button to start a new game
     fill(33, 195, 168);
@@ -224,12 +208,6 @@ function showNewGameButton() {  //When the game is paused show the New Game Butt
 }
 
 function drawCircle() {     //draw a circle
-    var index = -1;
-
-    noFill();
-    strokeWeight(9);
-    /*<--- Circle --->*/
-    stroke(115, 220, 230);
 
     var x = drawOnGridX();  //draw it in the Cell boundaries
     var y = drawOnGridY();  // the x, y values contain the Coordinates of the center of the cell
@@ -239,7 +217,7 @@ function drawCircle() {     //draw a circle
         if(game.cells[index] == 0){
             game.cells[index] = 2; // 1 for Cross, 0 for Circle
             roundNr++;
-            ellipse(x, y, 63, 63);
+            circleO(x, y, 63, 9);
         }
 
     }
@@ -247,8 +225,6 @@ function drawCircle() {     //draw a circle
 }
 
 function drawCrossX() {
-    noStroke();
-    fill(58, 59, 99);
 
     var x = drawOnGridX();
     var y = drawOnGridY();
@@ -267,9 +243,21 @@ function drawCrossX() {
 function crossX(x, y, w, h) {
     rectMode(CENTER);
 
+    noStroke();
+    fill(58, 59, 99);               //Color: Dark blue for Cross
+
     rect(x, y, w, h);
     rect(x, y, h, w);
+
     rectMode(CORNER);
+}
+
+function circleO(x, y, radius, lineStroke) {
+    noFill();
+    strokeWeight(lineStroke);
+    stroke(115, 220, 230);    //Color: teal for Circle
+
+    ellipse(x, y, radius, radius);
 }
 
 // Cross and Circles are placed on the Grid
